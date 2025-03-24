@@ -1,0 +1,9 @@
+# mac junk
+.DS_STORE
+
+# crc calculations
+*.crc
+
+# assembler outputs
+*.bin
+*.lst
