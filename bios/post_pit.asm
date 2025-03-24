@@ -109,8 +109,8 @@ POST_PIT:
 
   ; set up CNT_A for a ~61Hz square wave
   ; input clock is 4 MHz
-  ; we want a count of 65536 (this is the slowest we can go)
-  mov ax, 65536
+  ; we want a count of 65535 (this is the slowest we can go)
+  mov ax, 65535
   mov dx, CNT_A
   out dx, al
   mov al, ah
