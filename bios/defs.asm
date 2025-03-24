@@ -1,5 +1,20 @@
 ; various definitions for the bios
 
+%ifndef RAM_SIZE
+; RAM size in KB
+RAM_SIZE equ 0x3F0
+%warning "RAM_SIZE not defined, using default value of 0x3F0"
+%endif
+
+%ifndef ROM_SIZE
+; ROM size in KB
+ROM_SIZE equ 0x08
+%warning "ROM_SIZE not defined, using default value of 0x08"
+%endif
+
+; calculate ROM_START
+ROM_START equ 0x100000 - ROM_SIZE * 1024
+
 ; NOTE: the PIC lives at IO port 0x0000
 PIC_0 equ 0x0000
 PIC_1 equ 0x0001
@@ -50,8 +65,7 @@ CFREG5	equ	CFBASE+5	; SECTOR ADDRESS LBA 2 [16:23]
 CFREG6	equ	CFBASE+6	; SECTOR ADDRESS LBA 3 [24:27 (LSB)]
 CFREG7	equ	CFBASE+7	; READ: STATUS, WRITE: 
 
-; RAM size in KB
-RAM_SIZE equ 0x3F0
+
 
 ; KB buffer size in bytes
 KB_BUFFER_SIZE equ 0x20

@@ -1,11 +1,10 @@
 ; BIOS for ARC86-based systems 
 
-BITS 16
-
 %include "defs.asm"
 
-; 8KB bios starts at 0xFE000
-org 0xFE000
+BITS 16
+CPU 8086
+ORG ROM_START
 
 reset:
   ; step 0
@@ -112,11 +111,11 @@ halt:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ; pad up to 0xFFFF0
-  times (0xFFFF0 - 0xFE000) - ($ - $$) db 0
+  times (0xFFFF0 - ROM_START) - ($ - $$) db 0
 
-  jmp 0xF000:0xE000
+  jmp 0xF000:reset
 
   ; pad to 0xFFFFE
   ; note that we do this because we will inject 2 Bytes for the CRC at 0xFFFFE
   ; $ represents the current address, and $$ represents the starting address
-  times (0xFFFFE - 0xFE000) - ($ - $$) db 0 
+  times (0xFFFFE - ROM_START) - ($ - $$) db 0 

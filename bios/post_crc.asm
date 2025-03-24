@@ -15,7 +15,7 @@ POST_CRC:
 
   ; set the DS to the start of ROM
   xor ax, ax
-  or ax, 0xFE00
+  or ax, ROM_START >> 4
   mov ds, ax
   
   ; Initialize CRC register to 0x0000
@@ -25,7 +25,7 @@ POST_CRC:
   mov si, 0x0
 
   ; Set the ending address of the ROM
-  mov di, 0x1FFE
+  mov di, ROM_SIZE - 2
 .crc_loop: 
   ; XOR the byte with the CRC register
   xor al, [ds:si]
@@ -53,7 +53,7 @@ POST_CRC:
   mov bx, ax
 
   ; compare with the CRC value stored at 0xFFFFE
-  mov si, 0x1FFE
+  mov si, ROM_SIZE - 2
   mov ax, [ds:si]
 
   cmp ax, bx

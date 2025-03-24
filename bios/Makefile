@@ -2,6 +2,16 @@ progs = bios
 
 assembly := $(wildcard *.asm)
 
+
+# conditionally set the ram and rom sizes
+ifdef RAM_SIZE
+	ram_size := -dRAM_SIZE=$(RAM_SIZE)
+endif
+
+ifdef ROM_SIZE
+	rom_size := -dROM_SIZE=$(ROM_SIZE)
+endif
+
 # https://stackoverflow.com/a/23324703
 mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 util_path := $(mkfile_path)/../util
@@ -9,7 +19,7 @@ util_path := $(mkfile_path)/../util
 all: $(addsuffix .bin, $(progs))
 
 %.bin: $(assembly)
-	nasm -Wall -f bin $< -o $@ -l $(basename $@).lst
+	nasm -Wall $(ram_size) $(rom_size) -f bin $< -o $@ -l $(basename $@).lst
 	python3 $(util_path)/crc_calc.py $@ > $(basename $@).crc
 	printf $$(python3 $(util_path)/crc_calc.py -l -n $@ | cut -dx -f2 | sed 's/../\\x&/g') >> $@
 	
