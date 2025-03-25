@@ -85,10 +85,18 @@ reset:
   %include "post_cf.asm"
 
   ; step 15
+  ; mark boot as warm
+  ; set the cold boot flag to 0x1234
+  ; set DS to BDA
+  mov ax, 0x0040
+  mov ds, ax
+  mov word [ds:BDA_COLD_BOOT], 0x1234
+
+  ; step 16
   ; short beep
   %include "post_beep.asm"
 
-  ; step 16
+  ; step 17
   ; try to boot
   %include "post_boot.asm"
 

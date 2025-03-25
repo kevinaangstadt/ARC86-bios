@@ -4,7 +4,19 @@
 ; Perform a Check of the RAM                                                   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 POST_MEMCHECK16K:
-  ; Valid addresses for RAM are 0x00000 to 0xFBFFF
+  ; Valid addresses for RAM are 0x00000 to 0xFBFFF (depending on the RAM size)
+
+  ; check if this is a cold boot first
+  ; if not, skip the memory check
+  ; set ds to bda
+  mov ax, 0x0040
+  mov ds, ax
+  ; check the cold boot flag
+  mov ax, [BDA_COLD_BOOT]
+
+  ; check if this is 0x1234 (warm boot)
+  cmp ax, 0x1234
+  je .memcheck_done
   
   ; Do first 16KiB separately so we can use it for the stack once it is verified
   mov si, 0x0000

@@ -71,6 +71,7 @@ CFREG7	equ	CFBASE+7	; READ: STATUS, WRITE:
 KB_BUFFER_SIZE equ 0x20
 
 ; BIOS Data Area
+BDA_COLD_BOOT equ 0x0000 ; offset from 40:00 to cold boot flag (word)
 BDA_RAM equ 0x0013
 BDA_KB_BUFFER_SIZE equ 0x0019
 BDA_KB_BUFFER_HD equ 0x001A ; offset from 40:00 to keyboard buffer head

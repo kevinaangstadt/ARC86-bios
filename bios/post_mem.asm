@@ -2,6 +2,17 @@
 
 POST_MEM:
 
+  ; check if this is a cold boot first
+  ; if not, skip the memory check
+  ; set ds to bda
+  mov ax, 0x0040
+  mov ds, ax
+  ; check the cold boot flag
+  mov ax, [BDA_COLD_BOOT]
+  ; check if this is 0x1234 (warm boot)
+  cmp ax, 0x1234
+  je POST_MEM_DONE
+
   ; set DS to the start of ROM
   push ds
   mov ax, 0xF000
@@ -119,6 +130,8 @@ POST_MEM:
 
 .done:
   ; trampoline because the offset is too far
+  ; print a newline
+  call fn_uart_newline
   jmp POST_MEM_DONE
 
 
@@ -212,5 +225,3 @@ fn_memcheck_4kb:
 
 
 POST_MEM_DONE:
-  ; print a newline
-  call fn_uart_newline
