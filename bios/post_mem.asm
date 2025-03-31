@@ -225,3 +225,19 @@ fn_memcheck_4kb:
 
 
 POST_MEM_DONE:
+  mov ax, 0xF000
+  mov ds, ax
+
+  ; this is the end of the memory check
+
+  ; print "Memcheck Passed" on the UART
+  mov ax, memcheck_passed_str
+  call fn_uart_print_str
+
+  ; print memcheck passed on LCD
+  mov ax, 0x40
+  call fn_lcd_move_cursor
+  mov ax, memcheck_passed_str
+  call fn_print_lcd_str
+
+  call fn_uart_newline

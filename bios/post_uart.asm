@@ -1,6 +1,12 @@
 ; BIOS fragment to set up the UART and start output communication
 
 POST_UART:
+  mov ax, 0xF000
+  mov ds, ax
+  call fn_clear_lcd
+  mov ax, uart_string
+  call fn_print_lcd_str   ; print "POST UART" to the LCD
+
   ; set up FIFO
   mov dx, UART_FIFO
   mov al, 0b10000001
@@ -35,3 +41,8 @@ POST_UART:
   ; hide cursor
   call fn_uart_hide_cursor
   ; FIXME test the UART with loopback
+
+  mov al, ' '
+  call fn_print_lcd_char
+  mov ax, passed_str
+  call fn_print_lcd_str

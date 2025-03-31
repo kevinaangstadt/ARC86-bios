@@ -1,6 +1,15 @@
 ; BIOS fragment for setting up TIMER 0 on the PIT
 
 POST_PIT:
+  push ds
+  mov ax, 0xF000
+  mov ds, ax
+  call fn_clear_lcd
+  mov ax, pit_string
+  call fn_print_lcd_str   ; print "POST PIT" to the LCD
+  pop ds
+
+
   ; set up timer C for square wave output
   ; input clock is 4 MHz
   ; we want a 440 Hz square wave
@@ -150,10 +159,16 @@ POST_PIT_IRQ:
   iret
 
 POST_PIT_FAILED:
-  call fn_print_lcd_hex_int
-  ; print an T to the LCD (timer failed)
-  mov al, 'T'
+  push ax
+  mov al, ' '
   call fn_print_lcd_char
+  mov ax, failed_str
+  call fn_print_lcd_str   ; print "POST PIT FAILED" to the LCD
+  mov al, ' ' 
+  call fn_print_lcd_char
+  ; print the failure code to the LCD
+  pop ax
+  call fn_print_lcd_hex_int
 
   ; long beep
   ; enable the speaker
@@ -195,3 +210,8 @@ POST_PIT_FAILED:
   jmp .halt
 
 POST_PIC_DONE:
+  ; print passed
+  mov al, ' ' 
+  call fn_print_lcd_char
+  mov ax, passed_str
+  call fn_print_lcd_str   ; print "POST PIT PASSED" to the LCD

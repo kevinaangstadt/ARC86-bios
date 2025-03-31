@@ -1,5 +1,12 @@
 ; static data from the BIOS
 
+; POST Test Strings
+pit_string: db "POST PIT", 0 
+uart_string: db "POST UART", 0
+
+passed_str: db "Passed", 0
+failed_str: db "Failed", 0
+
 memcheck_patterns: db 0xAA, 0x55, 0x00, 0xFF, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80
 memcheck_str: db "KiB Verified", 0
 memcheck_passed_str: db "Memcheck Passed", 0
