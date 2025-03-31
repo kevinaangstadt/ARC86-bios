@@ -133,3 +133,37 @@ IRQ_5h:
 
   call fn_uart_print_str
   iret
+
+; IRQ 10h video service
+IRQ_10h:
+  ; back up ds, es, ss, bx, cx, dx
+  push ds
+  push es
+  push ss
+  push bx
+  push cx
+  push dx
+
+  ; compare ah for the function
+  ; TODO support more features
+  cmp ah, 0x0E ; check for teletype output
+  jne .done
+
+  ; TTY output function
+  ; AH = 0E
+	; AL = ASCII character to write
+	; BH = page number (text modes)
+	; BL = foreground pixel color (graphics modes)
+  call fn_uart_print_char ; call the UART print character function
+  jmp .done
+
+.done:
+  ; restore ds, es, ss, bx, cx, dx
+  pop dx
+  pop cx
+  pop bx
+  pop ss
+  pop es
+  pop ds
+  ; return from interrupt
+  iret

@@ -30,6 +30,11 @@ POST_IRQ_SETUP:
   mov [ds:0x002C], ax
   mov [ds:0x002E], word 0xF000
 
+  ; int10h is the BIOS video interrupt
+  mov ax, IRQ_10h
+  mov [ds:0x0040], ax
+  mov [ds:0x0042], word 0xF000
+
   ; set the ds to the BDA
   mov ax, 0x0040
   mov ds, ax
