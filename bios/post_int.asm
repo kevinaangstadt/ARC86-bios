@@ -25,10 +25,10 @@ POST_IRQ_SETUP:
   mov [ds:0x0020], ax
   mov [ds:0x0022], word 0xF000
 
-  ; IRQ12 is the UART
+  ; IRQ11 is the UART
   mov ax, IRQ_text
-  mov [ds:0x0030], ax
-  mov [ds:0x0032], word 0xF000
+  mov [ds:0x002C], ax
+  mov [ds:0x002E], word 0xF000
 
   ; set the ds to the BDA
   mov ax, 0x0040
