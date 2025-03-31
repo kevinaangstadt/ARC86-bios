@@ -35,6 +35,11 @@ POST_IRQ_SETUP:
   mov [ds:0x0040], ax
   mov [ds:0x0042], word 0xF000
 
+  ; int13h is the BIOS disk interrupt
+  mov ax, IRQ_13h
+  mov [ds:0x004C], ax
+  mov [ds:0x004E], word 0xF000
+
   ; set the ds to the BDA
   mov ax, 0x0040
   mov ds, ax

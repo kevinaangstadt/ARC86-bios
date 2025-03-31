@@ -167,3 +167,101 @@ IRQ_10h:
   pop ds
   ; return from interrupt
   iret
+
+; Int 13h - Disk Services
+IRQ_13h:
+  ; back up DS, BX, CX, and DX
+  push ds
+  push bx
+  push cx
+  push dx
+
+  cmp ah, 0x02 ; check for read sector function
+  jne .done ; if not read sector, return
+  ; AH = 02 - Read sectors from disk
+  ; AL = number of sectors to read
+  ; CH = cylinder number
+  ; CL = sector number (1-63)
+  ; DH = head number (0-1 for floppy)
+  ; DL = drive number (0 for floppy, 0x80 for hard disk)
+
+  ; set up an IDE read operation
+  ; move sector count into CFREG2
+  push ax
+  push dx
+  mov dx, CFREG2 ; this is where we will store the sector count
+  out dx, al ; send the number of sectors to read
+
+  ; starting sector
+  push cx 
+  mov dx, CFREG3 ; this is where we will store the starting sector
+  and cl, 0x3F ; mask out the sector number (1-63)
+  mov al, cl ; move the sector number into AL
+  out dx, al ; send the sector number to CFREG2
+  pop cx ; restore CX
+
+  ; cylinder number
+  mov dx, CFREG4 ; this is where we will store the cylinder number
+  ; CH contains the cylinder number
+  mov al, ch ; move the cylinder number into AL
+  out dx, al ; send the cylinder number to CFREG4
+
+  ; cylinder high
+  push cx
+  mov dx, CFREG5 ; this is where we will store the high byte of the cylinder number
+  ; upper 2 bits of cl contain the high byte of the cylinder number
+  mov al, cl ; move the high byte of the cylinder number into AL
+  mov cx, 6
+  shr al, cl ; shift right to get the high byte
+  pop cx 
+
+  ; set up drive head, drive, and CHS values
+  ; move the head number into CFREG6
+  pop dx ; restore drive info
+  mov al, dh ; move the head number into AL
+  and al, 0x0F ; mask out the upper bits
+  or al, 0b10100000 ; set drive number, CHS mode
+  out dx, al ; send the head number to CFREG6
+
+  ; now we need to read the sectors from the disk
+  ; set the read command
+  mov dx, CFREG7
+  mov al, 0x20
+  out dx, al
+
+  ; wait for the CF card to be ready
+  call CFWaitReady
+  call CFCheckError
+
+  ; ES:BX contains the buffer to read the data into
+  ; we need it to be DS:DI for the read function
+  ; set DS to the buffer segment
+  mov ax, es
+  mov ds, ax
+
+  push di ; save DI to restore later
+  mov di, bx ; set DI to the buffer address in BX
+
+  ; read the data
+  call CFRead
+
+  pop di ; restore DI
+
+  call CFCheckError
+
+  ; FIXME do actual error checking
+  ; set up return values
+  pop ax
+  xor ah, ah ; clear AH for success
+  ; set carry flag to 0
+  clc ; clear carry flag to indicate success
+  
+
+.done:
+  ; restore DS, BX, CX, and DX
+  pop dx
+  pop cx
+  pop bx
+  pop ds
+  ; return from interrupt
+  iret
