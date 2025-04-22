@@ -521,6 +521,21 @@ fn_uart_wait_to_write:
   ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; UART wait to read function                                                   ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+fn_uart_wait_to_read:
+  ; wait for the UART to be ready to read
+  ; check if the UART is ready to read
+  mov dx, UART_LSR
+.loop:
+  in al, dx
+  and al, 0x01
+  jz .loop
+
+  ; return
+  ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hide UART cursor                                                             ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 fn_uart_hide_cursor:
@@ -577,21 +592,44 @@ fn_uart_newline:
   ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; UART set video mode function                                                 ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+fn_uart_set_vidmode:
+  ; set the video mode
+  ; ESC[={mode}h
+  mov bl, al
+  mov al, UART_ESC
+  call fn_uart_print_char
+  mov al, '['
+  call fn_uart_print_char
+  mov al, '='
+  call fn_uart_print_char
+  mov al, bl
+  add al, '0'
+  call fn_uart_print_char
+  mov al, 'h'
+  call fn_uart_print_char
+  ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; function CFReset                                                             ;
+; resets the CF card                                                           ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+CFReset:
+  ; reset the CF card
+  mov dx, CFREG8
+  mov al, 0x04
+  out dx, al
+  call CFWaitReady
+
+  ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; funciton CFInit                                                              ;
 ; initializes the CF card                                                      ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CFInit:
-  ; reset the CF card
-  ; mov dx, CFREG7
-  ; mov al, 0x04
-  ; out dx, al
-  call CFWaitReady
-
-  ; reset the CF card
-  mov dx, CFREG7
-  mov al, 0x04
-  out dx, al
-  call CFWaitReady
+  call CFReset
 
   ; LBA3=0, Master, Mode=LBA
   mov dx, CFREG6 

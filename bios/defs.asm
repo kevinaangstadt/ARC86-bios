@@ -56,6 +56,7 @@ UART_ESC equ 0x1B
 
 ; CF card registers
 CFBASE	equ 0xA000
+CFBASE2 equ 0xC000
 CFREG0	equ	CFBASE+0	; DATA PORT
 CFREG1	equ	CFBASE+1	; READ: ERROR CODE, WRITE: FEATURE
 CFREG2	equ	CFBASE+2	; NUMBER OF SECTORS TO TRANSFER
@@ -63,7 +64,8 @@ CFREG3	equ	CFBASE+3	; SECTOR ADDRESS LBA 0 [0:7]
 CFREG4	equ	CFBASE+4	; SECTOR ADDRESS LBA 1 [8:15]
 CFREG5	equ	CFBASE+5	; SECTOR ADDRESS LBA 2 [16:23]
 CFREG6	equ	CFBASE+6	; SECTOR ADDRESS LBA 3 [24:27 (LSB)]
-CFREG7	equ	CFBASE+7	; READ: STATUS, WRITE: 
+CFREG7	equ	CFBASE+7	; READ: STATUS, WRITE: COMMAND
+CFREG8  equ CFBASE2+6   ; READ: ALT STATUS, WRITE: DEVICE CONTROL
 
 
 
@@ -77,6 +79,8 @@ BDA_KB_BUFFER_SIZE equ 0x0019
 BDA_KB_BUFFER_HD equ 0x001A ; offset from 40:00 to keyboard buffer head
 BDA_KB_BUFFER_TL equ 0x001C ; offset from 40:00 to keyboard buffer tail
 BDA_KB_BUFFER equ 0x001E ; offset from 40:00 to keyboard buffer
+
+BDA_VIDEO_MODE equ 0x0049 ; offset from 40:49 to video mode (byte)
 
 BDA_TIMER_COUNT equ 0x0060 ; offset from 40:00 to timer count (byte)
 BDA_CLK equ 0x006C ; offset from 40:00 to timer (dword)

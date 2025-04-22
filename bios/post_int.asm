@@ -39,6 +39,16 @@ POST_IRQ_SETUP:
   mov ax, IRQ_13h
   mov [ds:0x004C], ax
   mov [ds:0x004E], word 0xF000
+  
+  ; int16h is the BIOS keyboard interrupt
+  mov ax, IRQ_16h
+  mov [ds:0x0058], ax
+  mov [ds:0x005A], word 0xF000
+
+  ; int19h is the BIOS boot interrupt
+  mov ax, IRQ_19h
+  mov [ds:0x0064], ax
+  mov [ds:0x0066], word 0xF000
 
   ; set the ds to the BDA
   mov ax, 0x0040
