@@ -620,6 +620,13 @@ CFReset:
   mov dx, CFREG8
   mov al, 0x04
   out dx, al
+  push cx
+  mov cx, 100
+.loop:
+  loop .loop
+  pop cx
+  xor al, al
+  out dx, al
   call CFWaitReady
 
   ret
