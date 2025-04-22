@@ -109,7 +109,7 @@ IRQ_13h:
  
 .success:
   ; set carry flag to 0
-  and word [bp + 10*2], 0xFFFE ; clear carry flag to indicate success
+  and word [ss:bp + 7*2], 0xFFFE ; clear carry flag to indicate success
 
 .done:
   ; restore DS, BX, CX, and DX
@@ -124,7 +124,7 @@ IRQ_13h:
 .unsupported_function:
   ; Function not supported
   ; set carry flag to 1
-  or word [bp + 10*2], 0x0001 ; set the carry flag
+  or word [ss:bp + 7*2], 0x0001 ; set the carry flag
   jmp .done
 
 .function_table:

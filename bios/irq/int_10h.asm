@@ -85,7 +85,7 @@ IRQ_10h:
   jmp .success
   
 .success:
-  and word [bp + 10 * 2], 0xFFFE ; clear the carry flag
+  and word [ss:bp + 9 * 2], 0xFFFE ; clear the carry flag
 
 .done:
   ; restore ds, es, ss, bx, cx, dx
@@ -100,7 +100,7 @@ IRQ_10h:
   iret
 
 .unsupported_function:
-  or word [bp + 10 * 2], 0x0001    ; set the carry flag
+  or word [ss:bp + 9 * 2], 0x0001    ; set the carry flag
   jmp .done
   
 .function_table:
