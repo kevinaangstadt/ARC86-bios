@@ -1,6 +1,6 @@
 progs = bios
 
-assembly := $(wildcard *.asm)
+assembly := $(wildcard */*.asm)
 assembly_root = bios.asm
 
 
