@@ -40,6 +40,10 @@ IRQ_10h:
   mov ds, bx
   mov [ds:BDA_VIDEO_MODE], al
 
+  push ax
+  call fn_uart_clear_screen
+  pop ax
+
   call fn_uart_set_vidmode      ; call the UART set video mode function
   jmp .success
 
