@@ -41,7 +41,8 @@ IRQ_10h:
   mov [ds:BDA_VIDEO_MODE], al
 
   push ax
-  call fn_uart_clear_screen
+  call fn_uart_clear_screen     ; clear the screen
+  call fn_uart_show_cursor      ; show the cursor
   pop ax
 
   call fn_uart_set_vidmode      ; call the UART set video mode function
