@@ -5,7 +5,6 @@ IRQ_13h:
   push bx
   push cx
   push dx
-  push ax
   push bp
 
   mov bp, sp
@@ -16,8 +15,14 @@ IRQ_13h:
 
   ; get the function address from the function table
   mov si, ax                      ; move the function number into si
-  and si, 0x00FF                  ; mask out the upper byte
-  shl si, 1                       ; multiply by 2 for table offset
+  and si, 0xFF00                  ; mask out the upper byte
+  shr si, 1                       ; divide by 128 for table offset
+  shr si, 1                       ; >> 7 (2 bytes)
+  shr si, 1
+  shr si, 1                       
+  shr si, 1  
+  shr si, 1                       
+  shr si, 1                    
   jmp [cs:.function_table + si]   ; jump to the function
 
 .fn_reset_disk:
@@ -35,7 +40,14 @@ IRQ_13h:
   ; DH = head number (0-1 for floppy)
   ; DL = drive number (0 for floppy, 0x80 for hard disk)
 
+  ; back up AX
+  push ax
+  
+  ; back up bx
+  push bx
+  push ax
   call CHStoLBA
+  
   ; LBA is in dx (upper) and bx (lower)
 
   ; restore ax
@@ -139,10 +151,7 @@ CHStoLBA:
   ; set up an IDE read operation
   ; we need to convert this from CHS to LBA
   ; we'll assume 1024 cylinders, 16 heads & 63 sectors
-  ; LBA = = (sector - 1) + (head * 63) + (cylinder * 63 * 16)
-
-  ; back up bx
-  push bx
+  ; LBA = (sector - 1) + (head * SECTORS_PER_TRACK) + (cylinder * SECTORS_PER_TRACK * 16)
 
   ; back up ax and dx for the multiply
   push ax
@@ -155,8 +164,8 @@ CHStoLBA:
   shr ah, 1 ; ditto
   mul dx ; multiply AX by 16 (the number of heads)
 
-  mov dx, 63 ; set up the multiplier
-  mul dx ; multiply AX by 63 (the number of sectors)
+  mov dx, SECTORS_PER_TRACK ; set up the multiplier
+  mul dx ; multiply AX by SECTORS_PER_TRACK
 
   ; bx is backed up
   ; grab the head number from stack and store it there
@@ -169,16 +178,16 @@ CHStoLBA:
   ; calculate head * 63
   xor ax, ax ; clear AX
   mov al, bh ; move the head number into AL
-  mov dl, 63 ; set up the multiplier
-  mul dl ; multiply AL by 63
+  mov dl, SECTORS_PER_TRACK ; set up the multiplier
+  mul dl ; multiply AL by SECTORS_PER_TRACK
 
-  ; ax now contains the head * 63
+  ; ax now contains the head * SECTORS_PER_TRACK
   ; restore dx 
   pop dx ; restore the upper part of the result
   ; restore lower part of the result to bx
   pop bx 
-  ; add the head * 63 to the result
-  add bx, ax ; add the head * 63 to the result
+  ; add the head * SECTORS_PER_TRACK to the result
+  add bx, ax ; add the head * SECTORS_PER_TRACK to the result
 
   ; increment dx by 1 if there was a carry
   adc dx, 0 ; add the carry to DX
@@ -191,7 +200,10 @@ CHStoLBA:
 
   add bx, ax ; add the result to the sector number
   ; increment dx by 1 if there was a carry
-  adc dx, 0 ; add the carry to DX
+  adc dx, 0 ; add the carry to 
+
+  ; restore ax that was backed up for multiply
+  pop ax
 
   ; LBA is in dx (upper) and bx (lower)
   ret
