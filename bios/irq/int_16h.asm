@@ -10,8 +10,8 @@ IRQ_16h:
 
   mov bp, sp
 
-  ; FIXME support more than AL=0x00
-  cmp al, 0x00
+  ; FIXME support more than AH=0x00
+  cmp ah, 0x00
   jne .unsupported_function
 
   ; clear the RX buffer
