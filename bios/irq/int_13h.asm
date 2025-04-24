@@ -118,6 +118,74 @@ IRQ_13h:
   ; FIXME implement sector writing
 .fn_write_sectors:
   jmp .unsupported_function ; not implemented yet
+
+
+.fn_read_sectors_lba:
+  ; AH = 1Bh - Read sectors from disk using LBA
+  ; AL = number of sectors to read
+  ; BX = buffer address
+  ; CX = LBA lower address
+  ; DX = LBA upper address
+
+  ; back up AX
+  push ax
+
+  mov ax, dx
+  mov dx, CFREG5 ; LBA 16-23
+  out dx, al 
+  mov al, ah
+  and al, 0xF ; mask out the upper bits
+  or al, 0xE0 ; set the drive number and LBA 
+  mov dx, CFREG6 ; LBA 24-31
+  out dx, al 
+  
+  mov ax, cx
+  mov dx, CFREG3 ; LBA 0-7
+  out dx, al
+  mov al, ch
+  mov dx, CFREG4 ; LBA 8-15
+  out dx, al
+
+  pop ax ; restore AX
+  mov dx, CFREG2 ; move sector count into CFREG2
+  out dx, al ; send the number of sectors to read
+
+  ; back up AX again
+  push ax
+
+  ; set the read command
+  mov dx, CFREG7
+  mov al, 0x20
+  mov al, 0x20
+  out dx, al
+
+  ; wait for the CF card to be ready
+  call CFWaitReady
+  call CFCheckError
+
+  ; ES:BX contains the buffer to read the data into
+  ; we need it to be DS:DI for the read function
+  ; set DS to the buffer segment
+  mov ax, es
+  mov ds, ax
+
+  push di ; save DI to restore later
+  mov di, bx ; set DI to the buffer address in BX
+
+  ; read the data
+  call CFRead
+
+  pop di ; restore DI
+
+  call CFCheckError
+
+  ; FIXME do actual error checking
+  ; set up return values
+  pop ax
+  xor ah, ah ; clear AH for success
+  jmp .success
+
+
  
 .success:
   ; set carry flag to 0
@@ -144,6 +212,30 @@ IRQ_13h:
   dw .unsupported_function          ; Function 01h
   dw .fn_read_sectors               ; Function 02h  
   dw .fn_write_sectors              ; Function 03h
+  dw .unsupported_function          ; Function 04h
+  dw .unsupported_function          ; Function 05h
+  dw .unsupported_function          ; Function 06h  
+  dw .unsupported_function          ; Function 07h
+  dw .unsupported_function          ; Function 08h  
+  dw .unsupported_function          ; Function 09h
+  dw .unsupported_function          ; Function 0Ah
+  dw .unsupported_function          ; Function 0Bh
+  dw .unsupported_function          ; Function 0Ch
+  dw .unsupported_function          ; Function 0Dh
+  dw .unsupported_function          ; Function 0Eh
+  dw .unsupported_function          ; Function 0Fh
+  dw .unsupported_function          ; Function 10h
+  dw .unsupported_function          ; Function 11h
+  dw .unsupported_function          ; Function 12h
+  dw .unsupported_function          ; Function 13h
+  dw .unsupported_function          ; Function 14h
+  dw .unsupported_function          ; Function 15h
+  dw .unsupported_function          ; Function 16h
+  dw .unsupported_function          ; Function 17h
+  dw .unsupported_function          ; Function 18h
+  dw .unsupported_function          ; Function 19h
+  dw .unsupported_function          ; Function 1Ah
+  dw .fn_read_sectors_lba           ; Function 1Bh
 .MAX_FUNCTION equ $ - .function_table
 
 CHStoLBA:
