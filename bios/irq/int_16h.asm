@@ -5,7 +5,6 @@ IRQ_16h:
   push bx
   push cx
   push dx
-  push ax
   push bp
 
   mov bp, sp
