@@ -65,10 +65,10 @@ POST_IRQ_SETUP:
   mov [ds:BDA_KB_BUFFER_TL], byte BDA_KB_BUFFER
   mov [ds:BDA_KB_BUFFER_HD], byte BDA_KB_BUFFER
   
-  ; enable IRQ0 and IRQ4 on the PIC
+  ; enable IRQ0 and IRQ3 on the PIC
   mov dx, PIC_MASK
   in al, dx
-  and al, 0b11101110
+  and al, 0b11110110
   out dx, al
 
   ; enable interrupts
