@@ -156,7 +156,6 @@ IRQ_13h:
   ; set the read command
   mov dx, CFREG7
   mov al, 0x20
-  mov al, 0x20
   out dx, al
 
   ; wait for the CF card to be ready
@@ -185,6 +184,69 @@ IRQ_13h:
   xor ah, ah ; clear AH for success
   jmp .success
 
+.fn_write_sectors_lba:
+  ; AH = 1Ch - Write sectors to disk using LBA
+  ; AL = number of sectors to write
+  ; BX = buffer address
+  ; CX = LBA lower address
+  ; DX = LBA upper address
+
+  ; back up AX
+  push ax
+
+  mov ax, dx
+  mov dx, CFREG5 ; LBA 16-23
+  out dx, al 
+  mov al, ah
+  and al, 0xF ; mask out the upper bits
+  or al, 0xE0 ; set the drive number and LBA 
+  mov dx, CFREG6 ; LBA 24-31
+  out dx, al 
+  
+  mov ax, cx
+  mov dx, CFREG3 ; LBA 0-7
+  out dx, al
+  mov al, ch
+  mov dx, CFREG4 ; LBA 8-15
+  out dx, al
+
+  pop ax ; restore AX
+  mov dx, CFREG2 ; move sector count into CFREG2
+  out dx, al ; send the number of sectors to write
+
+  ; back up AX again
+  push ax
+
+  ; set the write command
+  mov dx, CFREG7
+  mov al, 0x30
+  out dx, al
+
+  ; wait for the CF card to be ready
+  call CFWaitReady
+  call CFCheckError
+
+  ; ES:BX contains the buffer to read the data into
+  ; we need it to be DS:SI for the read function
+  ; set DS to the buffer segment
+  mov ax, es
+  mov ds, ax
+
+  push si ; save SI to restore later
+  mov si, bx ; set SI to the buffer address in BX
+
+  ; read the data
+  call CFWrite
+
+  pop si ; restore SI
+
+  call CFCheckError
+
+  ; FIXME do actual error checking
+  ; set up return values
+  pop ax
+  xor ah, ah ; clear AH for success
+  jmp .success
 
  
 .success:
@@ -236,6 +298,7 @@ IRQ_13h:
   dw .unsupported_function          ; Function 19h
   dw .unsupported_function          ; Function 1Ah
   dw .fn_read_sectors_lba           ; Function 1Bh
+  dw .unsupported_function          ; Function 1Ch
 .MAX_FUNCTION equ $ - .function_table
 
 CHStoLBA:

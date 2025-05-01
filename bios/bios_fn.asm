@@ -730,6 +730,33 @@ CFRead:
   ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; function CFWrite                                                             ;
+; writes data to the CF card                                                   ;
+; writes from [ds:si]                                                          ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+CFWrite:
+  push cx
+  xor cx, cx
+.loop:
+  call CFWaitReady
+  call CFCheckError
+  mov dx, CFREG7
+  in al, dx
+  and al, 0x08  ; filter out DRQ
+  cmp al, 0x08
+  jne .done
+  mov dx, CFREG0
+  mov al, [ds:si]
+  out dx, al 
+  inc si
+  inc cx
+  jmp .loop
+.done:  
+  mov ax, cx
+  pop cx
+  ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; function CFInfo                                                              ;
 ; prints information about the CF card                                         ;
 ; DS should be the segment where the data should go                            ;
