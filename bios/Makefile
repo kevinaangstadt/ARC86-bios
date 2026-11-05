@@ -18,10 +18,10 @@ util_path := $(mkfile_path)/../util
 
 all: $(addsuffix .bin, $(progs))
 
-%.bin: $(assembly)
+%.bin: %.asm $(assembly)
 	nasm -Wall $(ram_size) $(rom_size) -f bin $< -o $@ -l $(basename $@).lst
 	python3 $(util_path)/crc_calc.py $@ > $(basename $@).crc
-	printf $$(python3 $(util_path)/crc_calc.py -l -n $@ | cut -dx -f2 | sed 's/../\\x&/g') >> $@
+	python3 $(util_path)/crc_calc.py -l -n $@ | cut -dx -f2 | xxd -r -p >> $@
 	
 
 clean:
